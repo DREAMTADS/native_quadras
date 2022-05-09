@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Button, Checkbox, TextInput } from 'react-native-paper';
 import quadrasApi from '../../services/quadrasApi.js';
 
-export default function Services() {
+export default function Quadras() {
     const [nome, setNome] = useState('');
     const [tipo, setTipo] = useState('');
     const [coberta, setCoberta] = useState(false);
