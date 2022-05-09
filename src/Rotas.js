@@ -5,8 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Quadras from './screens/Quadras';
 import Reservas from './screens/Reservas';
-
-import { cores } from './screens/styles';
+import Horarios from './screens/Horarios';
 
 const Tab = createBottomTabNavigator();
 
@@ -16,6 +15,7 @@ export default function Rotas() {
              <Tab.Navigator>
                 <Tab.Screen name="Quadra" component={Quadras} />
                 <Tab.Screen name="Reservas" component={Reservas} />
+                <Tab.Screen name="Horarios" component={Horarios} />
             </Tab.Navigator>
         </NavigationContainer>
     );

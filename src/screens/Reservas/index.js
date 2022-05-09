@@ -7,19 +7,43 @@ import quadrasApi from '../../services/quadrasApi.js';
 
 export default function Reservas() {
     const [quadras, setQuadras] = useState([]); 
-    const [selectedQuadra, setSelectedQuadra] = useState();
+    const [selectedQuadra, setSelectedQuadra] = useState('');
+    const [pago, setPago] = useState(false);
     const [nome, setNome] = useState('');
-    const [tipo, setTipo] = useState('');
+    const [cpf, setCpf] = useState('');
     const [response, setResponse] = useState('');
     const [startDate, setStartDate] = useState(new Date());
-    const [displayPicker, setDisplayPicker] = useState(false);
+    const [endDate, setEndDate] = useState(new Date());
+    const [displayStartPicker, setDisplayStartPicker] = useState(false);
+    const [displayEndPicker, setDisplayEndPicker] = useState(false);
 
-    const onChange = (event, value) => {
-        setStartDate(value);
-        if (Platform.OS === 'android') {
-            setDisplayPicker(false);
-        }
-      };
+    const gerarReserva = async() => {
+        try{       
+            const data = {
+                nomeCliente: nome,
+                cpf: cpf,
+                pago: pago,
+                horarios: {
+                    inicio: startDate,
+                    fim: endDate,
+                },
+                quadra: selectedQuadra
+            }
+
+            const res = await quadrasApi.post('/reservas', data);
+
+            if(res.status === 201){
+                setResponse('show');
+                setPago(false);
+                setStartDate(new Date());
+                setEndDate(new Date());
+                setNome('');
+                setCpf('');
+                setSelectedQuadra('');
+            }
+
+        } catch {(err) => {console.log(err)}}
+    }
 
     useEffect(() => {
         const listarQuadras = async() => {
@@ -28,8 +52,6 @@ export default function Reservas() {
     
                 if(res.status === 200){
                     setQuadras(res.data);
-                    setNome('');
-                    setTipo('');
                 }
     
             } catch {(err) => {console.log(err)}}
@@ -48,7 +70,7 @@ export default function Reservas() {
                 clearOnFocus={false}
                 closeOnBlur={true}
                 closeOnSubmit={false}
-                onSelectItem={item => item && console.log(item.quadra)}
+                onSelectItem={item => item && setSelectedQuadra(item.quadra)}
                 dataSet={
                     quadras.map((item, index ) => {
                         return {
@@ -68,29 +90,66 @@ export default function Reservas() {
 
             <TextInput
                 label="CPF"
-                value={tipo}
-                onChangeText={text => setTipo(text)}
+                value={cpf}
+                onChangeText={text => setCpf(text)}
             />
+
+            <View style={styles.flexView}>
+                <Text>Pago: </Text>
+                <Checkbox 
+                    status={pago ? 'checked' : 'uncheked'} 
+                    onPress={() => {setPago(!pago)}}
+                />
+            </View>
+        
             <Text>
                 {startDate.toLocaleTimeString()}
             </Text>
-            {displayPicker &&
+            {displayStartPicker &&
                 <DateTimePicker  
                     value={startDate}
                     mode="time" 
                     display='default'
                     minuteInterval={30}
-                    onChange={onChange}
+                    onChange={(event, value) => {
+                        setStartDate(value);
+                        if (Platform.OS === 'android') {
+                            setDisplayStartPicker(false);
+                        }
+                    }}
                     minimumDate={Date.parse(new Date())}
                 />
             }
 
-            <Button mode="contained" onPress={() => setDisplayPicker(true)}>
-                Selecionar horario
+            <Button mode="contained" onPress={() => setDisplayStartPicker(true)}>
+                Selecionar horario de inicio
             </Button>
 
-            <Button mode="contained" onPress={() => cadastrarQuadra()}>
-                Cadastrar Quadra
+            <Text>
+                {endDate.toLocaleTimeString()}
+            </Text>
+            {displayEndPicker &&
+                <DateTimePicker  
+                    value={endDate}
+                    mode="time" 
+                    display='default'
+                    minuteInterval={30}
+                    onChange={(event, value) => {
+                        setEndDate(value);
+                        if (Platform.OS === 'android') {
+                            setDisplayEndPicker(false);
+                        }
+                    }}
+                    minimumDate={Date.parse(new Date())}
+                />
+            }
+
+            <Button mode="contained" onPress={() => setDisplayEndPicker(true)}>
+                Selecionar horario de fim
+            </Button>
+            
+            <Button mode="contained" onPress={() => gerarReserva()}>
+                Gerar Reserva
             </Button>
 
             <Text>
