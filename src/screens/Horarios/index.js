@@ -1,6 +1,6 @@
 import DateTimePicker  from '@react-native-community/datetimepicker';
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import { Button, Checkbox, TextInput } from 'react-native-paper';
 import quadrasApi from '../../services/quadrasApi.js';
@@ -14,7 +14,7 @@ export default function Horarios() {
         try{       
 
             const res = await quadrasApi.get(`/reservas/horarios/${selectedQuadra}`);
-            console.log(res.data);
+
             if(res.status === 200){
                 setHorarios(res.data);
             }
@@ -60,12 +60,19 @@ export default function Horarios() {
                 )}
             />
 
+
             {horarios ? 
                     <FlatList
                         data={horarios}
                         removeClippedSubviews={false}
                         renderItem={({item}) => 
-                            <Text>{item.nomeCliente}</Text>
+                            <>
+                                <Text>{`Nome do cliente: ${item.nomeCliente}`}</Text>
+                                <Text>{`Dia da reserva: ${new Date(item.horarios.dia).toLocaleDateString()}`}</Text>
+                                <Text>{`Data inicio: ${new Date(item.horarios.inicio).toLocaleTimeString()}`}</Text>
+                                <Text>{`Data termino: ${new Date(item.horarios.fim).toLocaleTimeString()}`}</Text>
+                                <Text>--------*--------</Text>
+                            </>
                         }
                         keyExtractor={({_id}) => String(_id)}
                     />
